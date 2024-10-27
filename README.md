@@ -1,8 +1,9 @@
 # FastAPI users service demo
 
-## Run
+## Install
 ```
-helm upgrade app-users helm -n app-users --install --create-namespace
+helm dependency build ./helm -n app-users
+helm upgrade app-users helm -n app-users --install --create-namespace 
 ```
 
 ## Api examples
