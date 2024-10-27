@@ -1,0 +1,84 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: fast-api-user-crud-backend
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: "users"
+fullnameOverride: "backend-api"
+
+
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels:
+   app: backend-api
+
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+  targetPort: 8000
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: enabled
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/app-root: /docs
+  hosts:
+    - host: arch.homework
+      paths:
+        - path: /
+          pathType: Prefix
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# ingress-nginx controller: https://kubernetes.github.io/ingress-nginx/
+ingress-nginx:
+  controller:
+    kind: DaemonSet
+
+    reportNodeInternalIp: true
+
+    hostPort:
+      enabled: true
+      ports:
+        http: 80
+        https: 443
+
+    service:
+      type: NodePort
+
+# mongodb chart: https://github.com/bitnami/charts/blob/main/bitnami/mongodb/README.md
+mongodb:
+  # https://github.com/bitnami/charts/blob/main/bitnami/mongodb/README.md#architecture
+  architecture: "standalone"
+  # https://github.com/bitnami/charts/blob/main/bitnami/mongodb/README.md#mongodb-parameters
+  auth:
+    enabled: true
+    existingSecret: "backend-api-secret"
+  service:
+    ports:
+      mongodb: "27017"
+    nameOverride: mongo

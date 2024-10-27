@@ -1,0 +1,27 @@
+services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/build/Dockerfile
+      target: runner-image
+      args:
+        - DEBUG=true
+    platform: linux/amd64
+    tty: true
+    volumes:
+      - /src:/src
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    environment:
+      - DEBUG=true
+
+  mongo:
+    image: mongo:5.0.25
+    volumes:
+      - db-data:/data/db
+
+volumes:
+  db-data:
