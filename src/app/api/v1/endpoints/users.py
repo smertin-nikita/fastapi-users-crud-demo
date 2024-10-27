@@ -86,4 +86,5 @@ async def delete(
     user_id: UUID4,
 ):
     res = await UserModel.find(UserModel.id == user_id).delete()
-    logger.debug()
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
